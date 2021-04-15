@@ -6,24 +6,20 @@
  * @flow strict-local
  */
 
-import React, {useEffect, useState, Component} from 'react';
+import React, {Component} from 'react';
 import {Colors} from 'react-native/Libraries/NewAppScreen';
-import type {Node} from 'react';
 import {
   SafeAreaView,
-  StatusBar,
   StyleSheet,
   Text,
-  useColorScheme,
   View,
   Image,
-  FlatList,
   Dimensions,
+  useColorScheme,
 } from 'react-native';
 
 import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 import {DataCall} from './utils/DataCall';
-import {LayoutUtil} from './utils/LayoutUtil';
 // import {ImageRenderer} from './components/ImageRenderer';
 // import {ViewSelector} from './components/ViewSelector';
 
@@ -121,12 +117,12 @@ import {LayoutUtil} from './utils/LayoutUtil';
 export default class App extends Component {
   constructor(props) {
     super(props);
+    // const isDarkMode = useColorScheme() === 'dark';
     this.state = {
       dataProvider: new DataProvider((r1, r2) => {
         return r1 !== r2;
       }),
       movies: [],
-      count: 0,
       viewType: 0,
     };
     this.inProgressNetworkReq = false;
@@ -139,25 +135,22 @@ export default class App extends Component {
         dim.height = 100;
       },
     );
+    this.fetchData();
   }
-  UNSAFE_componentWillMount() {
-    this.fetchMoreData();
-  }
-  async fetchMoreData() {
-    if (!this.inProgressNetworkReq) {
-      //To prevent redundant fetch requests. Needed because cases of quick up/down scroll can trigger onEndReached
-      //more than once
-      this.inProgressNetworkReq = true;
-      const movies = await DataCall.get(this.state.count, 20);
-      this.inProgressNetworkReq = false;
-      this.setState({
-        dataProvider: this.state.dataProvider.cloneWithRows(
-          this.state.movies.concat(movies),
-        ),
-        movies: this.state.movies.concat(movies),
-        count: this.state.count + 20,
-      });
+
+  async fetchData() {
+    let movies = await DataCall.get().catch(err => {
+      console.log(err);
+    });
+    let res = [];
+    for (let i = 0; i < 1000; i++) {
+      res.push(...movies);
     }
+    this.setState({
+      dataProvider: this.state.dataProvider.cloneWithRows(
+        this.state.movies.concat(res),
+      ),
+    });
   }
   rowRenderer = (type, data) => {
     return (
@@ -174,34 +167,19 @@ export default class App extends Component {
       </View>
     );
   };
-  // viewChangeHandler = viewType => {
-  //   //We will create a new layout provider which will trigger context preservation maintaining the first visible index
-  //   this.setState({
-  //     layoutProvider: LayoutUtil.getLayoutProvider(viewType),
-  //     viewType: viewType,
-  //   });
-  // };
-  handleListEnd = () => {
-    this.fetchMoreData();
-
-    //This is necessary to ensure that activity indicator inside footer gets rendered. This is required given the implementation I have done in this sample
-    this.setState({});
-  };
   render() {
     //Only render RLV once you have the data
     return (
       <SafeAreaView style={styles.container}>
-        {this.state.count > 0 ? (
-          <RecyclerListView
-            style={{flex: 1}}
-            contentContainerStyle={{margin: 3}}
-            onEndReached={this.handleListEnd}
-            dataProvider={this.state.dataProvider}
-            layoutProvider={this._layoutProvider}
-            rowRenderer={this.rowRenderer}
-            renderFooter={this.renderFooter}
-          />
-        ) : null}
+        <RecyclerListView
+          style={{flex: 1}}
+          contentContainerStyle={{margin: 3}}
+          onEndReached={this.handleListEnd}
+          dataProvider={this.state.dataProvider}
+          layoutProvider={this._layoutProvider}
+          rowRenderer={this.rowRenderer}
+          renderFooter={this.renderFooter}
+        />
       </SafeAreaView>
     );
   }
