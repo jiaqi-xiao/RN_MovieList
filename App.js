@@ -61,12 +61,20 @@ const App: () => Node = () => {
       .catch(error => console.error(error));
   }, []);
 
+  const bigArr = props => {
+    let res = [];
+    for (let i = 0; i < 1000; i++) {
+      res.push(...props);
+    }
+    return res;
+  };
+
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
 
       <FlatList
-        data={data}
+        data={bigArr(data)}
         keyExtractor={item => item.title}
         renderItem={({item}) => (
           <RenderItem title={item.title} url={item.image} />
