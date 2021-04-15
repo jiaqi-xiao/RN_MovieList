@@ -16,27 +16,62 @@ import {
   useColorScheme,
   View,
   Image,
-  FlatList,
+  // FlatList,
+  Dimensions,
 } from 'react-native';
 
 import {Colors} from 'react-native/Libraries/NewAppScreen';
+import {RecyclerListView, DataProvider, LayoutProvider} from 'recyclerlistview';
 
 const App: () => Node = () => {
   const [data, setData] = useState([]);
+  const [dataProvider, setDataProvider] = useState(
+    new DataProvider((r1, r2) => {
+      return r1 !== r2;
+    }),
+  );
+  const [layoutProvider, setLayoutProvider] = useState(
+    new LayoutProvider(
+      index => {
+        return 0;
+      },
+      (type, dim) => {
+        dim.width = Dimensions.get('window').width;
+        dim.height = 120;
+      },
+    ),
+  );
+  // const [viewType, setViewType] = useState(0);
 
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+  /////////////////////////////
+  useEffect(() => {
+    fetch('https://api.androidhive.info/json/movies.json')
+      .then(response => response.json())
+      .then(json => setData(json))
+      .catch(error => console.error(error));
+    setDataProvider(dataProvider => dataProvider.cloneWithRows(bigArr(data)));
+  }, [data]);
 
-  const RenderItem = item => {
+  const bigArr = props => {
+    let res = [];
+    for (let i = 0; i < 1000; i++) {
+      res.push(...props);
+    }
+    return res;
+  };
+
+  const rowRenderer = (type, data) => {
     return (
       <View style={styles.itemRow}>
         <Image
           style={styles.logo}
           source={{
-            uri: item.url,
+            uri: data.image,
           }}
         />
         <View style={{flex: 1}}>
@@ -47,60 +82,29 @@ const App: () => Node = () => {
                 color: isDarkMode ? Colors.white : Colors.black,
               },
             ]}>
-            {item.title}
+            {data.title}
           </Text>
         </View>
       </View>
     );
   };
 
-  useEffect(() => {
-    fetch('https://api.androidhive.info/json/movies.json')
-      .then(response => response.json())
-      .then(json => setData(json))
-      .catch(error => console.error(error));
-  }, []);
-
-  const bigArr = props => {
-    let res = [];
-    for (let i = 0; i < 1000; i++) {
-      res.push(...props);
-    }
-    return res;
-  };
-
   return (
     <SafeAreaView style={backgroundStyle}>
       <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-
-      <FlatList
-        data={bigArr(data)}
-        keyExtractor={item => item.title}
-        renderItem={({item}) => (
-          <RenderItem title={item.title} url={item.image} />
-        )}
+      <RecyclerListView
+        style={{felx: 1}}
+        contentContainerStyle={{margin: 3}}
+        dataProvider={dataProvider}
+        layoutProvider={layoutProvider}
+        rowRenderer={rowRenderer}
+        renderAheadOffset={Dimensions.get('window').height + 50}
       />
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
   logo: {
     width: 100,
     height: 100,
