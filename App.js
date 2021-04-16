@@ -98,7 +98,7 @@ const App: () => Node = () => {
         dataProvider={dataProvider}
         layoutProvider={layoutProvider}
         rowRenderer={rowRenderer}
-        renderAheadOffset={Dimensions.get('window').height + 50}
+        renderAheadOffset={Dimensions.get('window').height * 2}
       />
     </SafeAreaView>
   );
