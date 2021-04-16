@@ -29,7 +29,6 @@ export default class App extends Component {
       movies: [],
       viewType: 0,
     };
-    this.inProgressNetworkReq = false;
     this._layoutProvider = new LayoutProvider(
       index => {
         return 0;
@@ -77,12 +76,9 @@ export default class App extends Component {
       <SafeAreaView style={styles.container}>
         <RecyclerListView
           style={{flex: 1}}
-          contentContainerStyle={{margin: 3}}
-          onEndReached={this.handleListEnd}
           dataProvider={this.state.dataProvider}
           layoutProvider={this._layoutProvider}
           rowRenderer={this.rowRenderer}
-          renderFooter={this.renderFooter}
         />
       </SafeAreaView>
     );
