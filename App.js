@@ -75,10 +75,17 @@ const App: () => Node = () => {
 
       <FlatList
         data={bigArr(data)}
-        // keyExtractor={item => item.title}
+        keyExtractor={(item, index) => index}
+        // windowSize={3}
         renderItem={({item}) => (
           <RenderItem title={item.title} url={item.image} />
         )}
+        // getItemLayout={(data, index) => ({
+        //   length: 120,
+        //   offset: 120 * index,
+        //   index,
+        // })}
+        // removeClippedSubviews={true}
       />
     </SafeAreaView>
   );
