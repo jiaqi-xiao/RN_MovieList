@@ -75,7 +75,7 @@ const App: () => Node = () => {
 
       <FlatList
         data={bigArr(data)}
-        keyExtractor={item => item.title}
+        // keyExtractor={item => item.title}
         renderItem={({item}) => (
           <RenderItem title={item.title} url={item.image} />
         )}
@@ -85,22 +85,6 @@ const App: () => Node = () => {
 };
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
   logo: {
     width: 100,
     height: 100,
